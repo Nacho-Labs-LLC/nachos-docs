@@ -1,0 +1,87 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Nachos",
+  "theme": "mint",
+  "colors": {
+    "primary": "#F2A93B",
+    "dark": "#F2A93B",
+    "light": "#F6C36C"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/Nacho-Labs-LLC/nachos"
+      }
+    ]
+  },
+  "navigation": {
+    "languages": [
+      {
+        "language": "en",
+        "tabs": [
+          {
+            "tab": "Get started",
+            "groups": [
+              { "group": "Home", "pages": ["index"] },
+              { "group": "First steps", "pages": ["start/getting-started", "start/quickstart"] }
+            ]
+          },
+          {
+            "tab": "Install",
+            "groups": [
+              { "group": "Overview", "pages": ["install/index", "install/cli", "install/docker"] },
+              { "group": "Maintenance", "pages": ["install/updating"] }
+            ]
+          },
+          {
+            "tab": "Configure",
+            "groups": [
+              { "group": "Overview", "pages": ["configuration/index"] },
+              { "group": "Core", "pages": ["configuration/nachos-toml", "configuration/env-vars"] }
+            ]
+          },
+          {
+            "tab": "Channels",
+            "groups": [
+              { "group": "Overview", "pages": ["channels/index"] },
+              { "group": "Messaging", "pages": ["channels/slack", "channels/discord", "channels/telegram"] }
+            ]
+          },
+          {
+            "tab": "Tools",
+            "groups": [
+              { "group": "Overview", "pages": ["tools/index"] },
+              { "group": "Built-in", "pages": ["tools/browser", "tools/filesystem", "tools/code-runner"] }
+            ]
+          },
+          {
+            "tab": "CLI",
+            "groups": [
+              { "group": "Overview", "pages": ["cli/index"] },
+              { "group": "Commands", "pages": ["cli/commands"] }
+            ]
+          },
+          {
+            "tab": "Security",
+            "groups": [
+              { "group": "Overview", "pages": ["security/index", "security/policies", "security/dlp", "security/audit"] }
+            ]
+          },
+          {
+            "tab": "Architecture",
+            "groups": [
+              { "group": "Overview", "pages": ["architecture/index", "architecture/gateway", "architecture/bus", "architecture/llm-proxy"] }
+            ]
+          },
+          {
+            "tab": "Reference",
+            "groups": [
+              { "group": "Help", "pages": ["reference/troubleshooting", "reference/faq", "reference/glossary"] }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
