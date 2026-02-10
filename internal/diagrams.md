@@ -29,49 +29,49 @@ flowchart TB
 
     subgraph Nachos["Nachos Stack (Docker Compose)"]
         subgraph Channels["Channels Layer"]
-            WebChat["WebChat\n:8080"]
-            Slack["Slack Adapter\n(@slack/bolt)"]
-            Discord["Discord Adapter\n(discord.js)"]
+            WebChat["WebChat<br/>:8080"]
+            Slack["Slack Adapter<br/>(@slack/bolt)"]
+            Discord["Discord Adapter<br/>(discord.js)"]
             Telegram["Telegram Adapter"]
             WhatsApp["WhatsApp Adapter"]
         end
 
         subgraph CoreLayer["Core Layer"]
             subgraph GatewayBox["Gateway (Orchestrator)"]
-                Router["Router\nMessage Routing"]
-                SessionMgr["SessionManager\nSession CRUD"]
-                Salsa["Salsa\nPolicy Engine"]
-                ToolCoord["ToolCoordinator\nTool Execution"]
-                SubagentOrch["SubagentOrchestrator\nSubagent Queue"]
-                CtxMgr["ContextManager\nToken Budget"]
-                StateLayer["StateLayer\nPersistent State"]
-                AuditLog["AuditLogger\nEvent Logging"]
-                DLP["DLP\nContent Scanning"]
-                RateLim["RateLimiter\nThrottling"]
+                Router["Router<br/>Message Routing"]
+                SessionMgr["SessionManager<br/>Session CRUD"]
+                Salsa["Salsa<br/>Policy Engine"]
+                ToolCoord["ToolCoordinator<br/>Tool Execution"]
+                SubagentOrch["SubagentOrchestrator<br/>Subagent Queue"]
+                CtxMgr["ContextManager<br/>Token Budget"]
+                StateLayer["StateLayer<br/>Persistent State"]
+                AuditLog["AuditLogger<br/>Event Logging"]
+                DLP["DLP<br/>Content Scanning"]
+                RateLim["RateLimiter<br/>Throttling"]
             end
-            Bus["NATS Message Bus\nPub/Sub + Request/Reply"]
+            Bus["NATS Message Bus<br/>Pub/Sub + Request/Reply"]
         end
 
         subgraph LLMLayer["LLM Layer"]
-            LLMProxy["LLM Proxy\nProvider Abstraction"]
-            Adapters["Adapters\nAnthropic | OpenAI | Ollama"]
+            LLMProxy["LLM Proxy<br/>Provider Abstraction"]
+            Adapters["Adapters<br/>Anthropic | OpenAI | Ollama"]
         end
 
         subgraph ToolsLayer["Tools Layer (Containers)"]
-            BrowserTool["Browser\n(Playwright)"]
-            FSTool["Filesystem\nRead/Write"]
-            CodeRunner["Code Runner\nJS/Python"]
-            WebFetchTool["Web Fetch\nHTTP + SSRF Guard"]
+            BrowserTool["Browser<br/>(Playwright)"]
+            FSTool["Filesystem<br/>Read/Write"]
+            CodeRunner["Code Runner<br/>JS/Python"]
+            WebFetchTool["Web Fetch<br/>HTTP + SSRF Guard"]
             CopilotTool["Copilot CLI"]
             ClaudeCodeMCP["Claude Code MCP"]
         end
 
         subgraph SkillsLayer["Skills Layer (In-Process)"]
-            ShellTool["ShellTool\nCLI Executor"]
-            GoPlaces["goplaces\n(lookup)"]
-            GifGrep["gifgrep\n(media)"]
-            Summarize["summarize\n(summarize)"]
-            Gog["gog\n(workspace)"]
+            ShellTool["ShellTool<br/>CLI Executor"]
+            GoPlaces["goplaces<br/>(lookup)"]
+            GifGrep["gifgrep<br/>(media)"]
+            Summarize["summarize<br/>(summarize)"]
+            Gog["gog<br/>(workspace)"]
         end
     end
 
@@ -121,51 +121,51 @@ flowchart TB
         direction TB
 
         subgraph Init["Initialization"]
-            Config["GatewayOptions\ndbPath, healthPort, bus,\nchannels[], policyConfig,\nauditConfig, dlpConfig, etc."]
+            Config["GatewayOptions<br/>dbPath, healthPort, bus,<br/>channels[], policyConfig,<br/>auditConfig, dlpConfig, etc."]
         end
 
         subgraph Routing["Message Routing"]
-            Router["Router\n- registerHandler()\n- route()\n- subscribeToChannel()\n- processInboundMessage()\n- sendLLMRequest()\n- sendToolRequest()\n- sendToChannel()\n- checkAndCompactContext()"]
-            RateLimiter["RateLimiter\nToken bucket\nper user/action"]
+            Router["Router<br/>- registerHandler()<br/>- route()<br/>- subscribeToChannel()<br/>- processInboundMessage()<br/>- sendLLMRequest()<br/>- sendToolRequest()<br/>- sendToChannel()<br/>- checkAndCompactContext()"]
+            RateLimiter["RateLimiter<br/>Token bucket<br/>per user/action"]
         end
 
         subgraph Sessions["Session Management"]
-            SessionManager["SessionManager\n- getOrCreateSession()\n- addMessage()\n- replaceMessages()\n- getSessionWithMessages()"]
-            StateStorage["StateStorage\n(SQLite via better-sqlite3)\nTables: sessions, messages"]
+            SessionManager["SessionManager<br/>- getOrCreateSession()<br/>- addMessage()<br/>- replaceMessages()<br/>- getSessionWithMessages()"]
+            StateStorage["StateStorage<br/>(SQLite via better-sqlite3)<br/>Tables: sessions, messages"]
         end
 
         subgraph Security["Security"]
-            Salsa["Salsa Policy Engine\n- evaluate()\n- reload()\n- getStats()"]
-            DLPLayer["DLP Security Layer\nContent scanning\nSensitive data detection"]
-            AuditLogger["AuditLogger\nFile | SQLite | Webhook\nComposite provider"]
+            Salsa["Salsa Policy Engine<br/>- evaluate()<br/>- reload()<br/>- getStats()"]
+            DLPLayer["DLP Security Layer<br/>Content scanning<br/>Sensitive data detection"]
+            AuditLogger["AuditLogger<br/>File | SQLite | Webhook<br/>Composite provider"]
         end
 
         subgraph ToolExec["Tool Execution"]
-            ToolCoordinator["ToolCoordinator\n- executeTools()\n- executeSingle()\nParallel/Sequential routing"]
-            LocalToolHandler["LocalToolHandler\nexec/shell -> ShellTool"]
-            ToolCache["ToolCache\nResult caching + TTL"]
-            ApprovalManager["ApprovalManager\nUser confirmation for\nRESTRICTED tier tools"]
+            ToolCoordinator["ToolCoordinator<br/>- executeTools()<br/>- executeSingle()<br/>Parallel/Sequential routing"]
+            LocalToolHandler["LocalToolHandler<br/>exec/shell -> ShellTool"]
+            ToolCache["ToolCache<br/>Result caching + TTL"]
+            ApprovalManager["ApprovalManager<br/>User confirmation for<br/>RESTRICTED tier tools"]
         end
 
         subgraph Context["Context Management"]
-            CtxManager["ContextManager\n- checkBeforeTurn()\n- compact()"]
-            MemoryPipeline["MemoryPipeline\nProactive history extraction"]
+            CtxManager["ContextManager<br/>- checkBeforeTurn()<br/>- compact()"]
+            MemoryPipeline["MemoryPipeline<br/>Proactive history extraction"]
         end
 
         subgraph Agents["Subagent System"]
-            SubagentMgr["SubagentManager\n- run(task)\nModes: full | host"]
-            SubagentOrch["SubagentOrchestrator\n- enqueue()\n- drainQueue()\n- announce()"]
-            DockerSandbox["DockerSubagentSandbox\nFull container isolation"]
-            SandboxMgr["SandboxManager\nManages sandbox lifecycle"]
+            SubagentMgr["SubagentManager<br/>- run(task)<br/>Modes: full | host"]
+            SubagentOrch["SubagentOrchestrator<br/>- enqueue()<br/>- drainQueue()<br/>- announce()"]
+            DockerSandbox["DockerSubagentSandbox<br/>Full container isolation"]
+            SandboxMgr["SandboxManager<br/>Manages sandbox lifecycle"]
         end
 
         subgraph State["Persistent State"]
-            SL["StateLayer\nComposed stores"]
-            PromptAsm["PromptAssembler\nSystem prompt assembly"]
+            SL["StateLayer<br/>Composed stores"]
+            PromptAsm["PromptAssembler<br/>System prompt assembly"]
         end
 
         subgraph Stream["Streaming"]
-            StreamMap["streamingSessions\nMap of sessionId to stream"]
+            StreamMap["streamingSessions<br/>Map of sessionId to stream"]
         end
     end
 
@@ -275,35 +275,35 @@ Policy loading, evaluation, condition matching, and decision output.
 
 flowchart TB
     subgraph Input["Security Request"]
-        Req["SecurityRequest\n----------\nrequestId\nuserId, sessionId\nsecurityMode\nresource: {type, id}\naction: string\nmetadata: {...}\ntimestamp"]
+        Req["SecurityRequest<br/>----------<br/>requestId<br/>userId, sessionId<br/>securityMode<br/>resource: {type, id}<br/>action: string<br/>metadata: {...}<br/>timestamp"]
     end
 
     subgraph Salsa["Salsa Policy Engine"]
 
         subgraph Loader["PolicyLoader"]
-            YAML["policies/*.yaml\nstrict | standard | permissive"]
+            YAML["policies/*.yaml<br/>strict | standard | permissive"]
             Parse["Parse YAML"]
-            Validate["PolicyValidator\nSchema validation"]
-            HotReload["File Watcher\nHot-reload on change"]
+            Validate["PolicyValidator<br/>Schema validation"]
+            HotReload["File Watcher<br/>Hot-reload on change"]
         end
 
         subgraph Evaluator["PolicyEvaluator"]
-            PrioritySort["Rules sorted by\npriority (desc)"]
+            PrioritySort["Rules sorted by<br/>priority (desc)"]
 
             subgraph RuleMatch["Rule Matching (per rule)"]
-                Criteria["matchesCriteria()\n- resource type\n- action\n- resourceId"]
-                Conditions["matchesConditions()\nAND logic across all"]
-                Operators["Operators:\nequals | not_equals\nin | not_in\ncontains | matches\nstarts_with | ends_with"]
+                Criteria["matchesCriteria()<br/>- resource type<br/>- action<br/>- resourceId"]
+                Conditions["matchesConditions()<br/>AND logic across all"]
+                Operators["Operators:<br/>equals | not_equals<br/>in | not_in<br/>contains | matches<br/>starts_with | ends_with"]
             end
 
-            FieldRes["getFieldValue()\n- security_mode\n- user_id, session_id\n- resource_type, resource_id\n- action\n- metadata.* (dot notation)"]
+            FieldRes["getFieldValue()<br/>- security_mode<br/>- user_id, session_id<br/>- resource_type, resource_id<br/>- action<br/>- metadata.* (dot notation)"]
         end
     end
 
     subgraph Output["Security Result"]
-        Allow["allowed: true\neffect: 'allow'\nruleId, reason"]
-        Deny["allowed: false\neffect: 'deny'\nruleId, reason"]
-        Default["Default Effect\n(deny if no rule matches)"]
+        Allow["allowed: true<br/>effect: 'allow'<br/>ruleId, reason"]
+        Deny["allowed: false<br/>effect: 'deny'<br/>ruleId, reason"]
+        Default["Default Effect<br/>(deny if no rule matches)"]
     end
 
     YAML --> Parse --> Validate --> PrioritySort
@@ -366,9 +366,9 @@ classDiagram
     PolicyRule --> RuleMatch
     PolicyRule --> "0..*" RuleCondition
 
-    note for PolicyRule "priority: higher = checked first\neffect: 'allow' | 'deny'\nFirst matching rule wins"
+    note for PolicyRule "priority: higher = checked first<br/>effect: 'allow' | 'deny'<br/>First matching rule wins"
 
-    note for RuleCondition "Operators:\nequals, not_equals\nin, not_in\ncontains, matches\nstarts_with, ends_with"
+    note for RuleCondition "Operators:<br/>equals, not_equals<br/>in, not_in<br/>contains, matches<br/>starts_with, ends_with"
 ```
 
 ### Security Modes Comparison
@@ -412,38 +412,38 @@ Budget zones, sliding window compaction, memory extraction pipeline, and bus eve
 
 flowchart TB
     subgraph Trigger["Before Each LLM Turn"]
-        RouterCall["Router.checkAndCompactContext()\nsessionId, contextWindow=200k,\nsystemPromptTokens"]
+        RouterCall["Router.checkAndCompactContext()<br/>sessionId, contextWindow=200k,<br/>systemPromptTokens"]
     end
 
     subgraph CM["ContextManager"]
         subgraph Check["checkBeforeTurn()"]
-            Budget["BudgetCalculator\nCalculate token usage"]
-            Sliding["SlidingWindowManager\nshould slide?"]
-            Result["ContextCheckResult\n{budget, needsCompaction, action}"]
+            Budget["BudgetCalculator<br/>Calculate token usage"]
+            Sliding["SlidingWindowManager<br/>should slide?"]
+            Result["ContextCheckResult<br/>{budget, needsCompaction, action}"]
         end
 
         subgraph Compact["compact()"]
-            Snapshot["1. Create snapshot\n(if enabled)"]
-            Strategy["2. Determine slide strategy\nturn-based | hybrid"]
-            Execute["3. Execute sliding window\nRemove oldest messages"]
+            Snapshot["1. Create snapshot<br/>(if enabled)"]
+            Strategy["2. Determine slide strategy<br/>turn-based | hybrid"]
+            Execute["3. Execute sliding window<br/>Remove oldest messages"]
             ValidateC["4. Validate result"]
-            Summarize["5. Generate summary\n(if enabled)"]
-            Extract["6. Extract history\n(facts, decisions, tasks)"]
+            Summarize["5. Generate summary<br/>(if enabled)"]
+            Extract["6. Extract history<br/>(facts, decisions, tasks)"]
             Recalc["7. Recalculate budget"]
         end
     end
 
     subgraph Zones["Budget Zones"]
-        Green["Green\n< 70%\nSafe"]
-        Yellow["Yellow\n70-80%\nMonitoring"]
-        Orange["Orange\n80-90%\nWarning"]
-        Red["Red\n90-95%\nCritical"]
-        Critical["Critical\n> 95%\nForced compaction"]
+        Green["Green<br/>< 70%<br/>Safe"]
+        Yellow["Yellow<br/>70-80%<br/>Monitoring"]
+        Orange["Orange<br/>80-90%<br/>Warning"]
+        Red["Red<br/>90-95%<br/>Critical"]
+        Critical["Critical<br/>> 95%<br/>Forced compaction"]
     end
 
     subgraph Pipeline["MemoryPipeline"]
-        MemExtract["handleExtraction()\nFacts, decisions, tasks"]
-        MemStore["storeExtracted()\nPersist to MemoryStore"]
+        MemExtract["handleExtraction()<br/>Facts, decisions, tasks"]
+        MemStore["storeExtracted()<br/>Persist to MemoryStore"]
     end
 
     subgraph Events["Bus Events"]
@@ -478,17 +478,17 @@ flowchart TB
 
 flowchart LR
     subgraph Config["Sliding Window Config"]
-        Mode["mode:\nhybrid | aggressive | conservative"]
-        Thresholds["thresholds:\nproactivePrune: 0.6\nlightCompaction: 0.75\naggressiveCompaction: 0.85\nemergency: 0.95"]
-        KeepRecent["keepRecent:\nturns: 10\nmessages: 20\ntokenBudget: 10000"]
-        SlideStrat["slideStrategy:\nturn | hybrid"]
+        Mode["mode:<br/>hybrid | aggressive | conservative"]
+        Thresholds["thresholds:<br/>proactivePrune: 0.6<br/>lightCompaction: 0.75<br/>aggressiveCompaction: 0.85<br/>emergency: 0.95"]
+        KeepRecent["keepRecent:<br/>turns: 10<br/>messages: 20<br/>tokenBudget: 10000"]
+        SlideStrat["slideStrategy:<br/>turn | hybrid"]
     end
 
     subgraph Actions["Compaction Actions"]
-        Proactive["Proactive Prune\nRemove 20% oldest"]
-        Light["Light Compaction\nRemove 40% oldest\n+ summarize"]
-        Aggressive["Aggressive\nRemove 60% oldest\n+ summarize + extract"]
-        Emergency["Emergency\nKeep only recent N\n+ full extraction"]
+        Proactive["Proactive Prune<br/>Remove 20% oldest"]
+        Light["Light Compaction<br/>Remove 40% oldest<br/>+ summarize"]
+        Aggressive["Aggressive<br/>Remove 60% oldest<br/>+ summarize + extract"]
+        Emergency["Emergency<br/>Keep only recent N<br/>+ full extraction"]
     end
 
     Thresholds --> Proactive & Light & Aggressive & Emergency
@@ -505,34 +505,34 @@ Security tier resolution, policy checks, approval gates, caching, and local vs. 
 
 flowchart TB
     subgraph LLMResponse["LLM Response"]
-        ToolCalls["tool_calls[]\n{id, name, input}"]
+        ToolCalls["tool_calls[]<br/>{id, name, input}"]
     end
 
     subgraph TC["ToolCoordinator"]
-        Detect["canExecuteInParallel()\n- Duplicate tools? -> sequential\n- Write-then-read? -> sequential\n- Otherwise -> parallel"]
+        Detect["canExecuteInParallel()<br/>- Duplicate tools? -> sequential<br/>- Write-then-read? -> sequential<br/>- Otherwise -> parallel"]
 
         subgraph Single["executeSingle(call)"]
-            ResolveTier["Resolve Security Tier\n- code_runner -> RESTRICTED\n- filesystem_write -> ELEVATED\n- browser -> STANDARD\n- read/list -> SAFE"]
+            ResolveTier["Resolve Security Tier<br/>- code_runner -> RESTRICTED<br/>- filesystem_write -> ELEVATED<br/>- browser -> STANDARD<br/>- read/list -> SAFE"]
 
-            PolicyCheck["Salsa Policy Check\nevaluate(resource=tool,\naction=execute)"]
+            PolicyCheck["Salsa Policy Check<br/>evaluate(resource=tool,<br/>action=execute)"]
 
-            ApprovalCheck["Approval Check\n(if RESTRICTED tier)"]
+            ApprovalCheck["Approval Check<br/>(if RESTRICTED tier)"]
 
-            CacheCheck["Cache Check\ncache.get(call)"]
+            CacheCheck["Cache Check<br/>cache.get(call)"]
 
             subgraph Route["Execution Route"]
-                IsLocal{"isLocalTool?\n(exec/shell)"}
-                Local["LocalToolHandler\n-> ShellTool"]
-                Remote["Bus Request\nnachos.tool.{name}.request"]
+                IsLocal{"isLocalTool?<br/>(exec/shell)"}
+                Local["LocalToolHandler<br/>-> ShellTool"]
+                Remote["Bus Request<br/>nachos.tool.{name}.request"]
             end
 
-            CacheSet["Cache Set\ncache.set(call, result, ttl)"]
+            CacheSet["Cache Set<br/>cache.set(call, result, ttl)"]
         end
     end
 
     subgraph Results["Tool Results"]
-        Success["ToolResult\nsuccess: true\ncontent, duration"]
-        Error["ToolResult\nsuccess: false\nerror code + message"]
+        Success["ToolResult<br/>success: true<br/>content, duration"]
+        Error["ToolResult<br/>success: false<br/>error code + message"]
     end
 
     ToolCalls --> Detect
@@ -558,10 +558,10 @@ flowchart TB
 
 flowchart LR
     subgraph Tiers["Security Tiers"]
-        Safe["SAFE\nread, list, get\nNo approval needed"]
-        Standard["STANDARD\nbrowser\nPolicy check only"]
-        Elevated["ELEVATED\nfilesystem write/edit/patch\nPolicy + logging"]
-        Restricted["RESTRICTED\ncode_runner\nPolicy + approval required"]
+        Safe["SAFE<br/>read, list, get<br/>No approval needed"]
+        Standard["STANDARD<br/>browser<br/>Policy check only"]
+        Elevated["ELEVATED<br/>filesystem write/edit/patch<br/>Policy + logging"]
+        Restricted["RESTRICTED<br/>code_runner<br/>Policy + approval required"]
     end
 
     Safe --> Standard --> Elevated --> Restricted
@@ -574,34 +574,34 @@ flowchart LR
 
 flowchart TB
     subgraph Input["Tool Call"]
-        ExecCall["exec({command: 'goplaces search coffee'})\nor shell({command: ...})"]
+        ExecCall["exec({command: 'goplaces search coffee'})<br/>or shell({command: ...})"]
     end
 
     subgraph LTH["LocalToolHandler"]
-        IsLocal["isLocalTool(name)\nname === 'exec' | 'shell'"]
-        ExtractCmd["Extract command\nfrom parameters"]
+        IsLocal["isLocalTool(name)<br/>name === 'exec' | 'shell'"]
+        ExtractCmd["Extract command<br/>from parameters"]
     end
 
     subgraph ST["ShellTool"]
-        ParseBin["Parse binary name\nfrom command string"]
-        CheckAllowed["Check allowedTools[]\nBinary in allowlist?"]
-        CheckEnv["Validate required\nenvironment variables"]
+        ParseBin["Parse binary name<br/>from command string"]
+        CheckAllowed["Check allowedTools[]<br/>Binary in allowlist?"]
+        CheckEnv["Validate required<br/>environment variables"]
 
         subgraph Spawn["spawnProcess()"]
-            ChildProc["spawn(command)\nshell=true, cwd, env"]
-            Timeout["Timeout handler\nSIGTERM then 5s then SIGKILL"]
-            StdOut["Capture stdout\n(max 100KB, truncate)"]
+            ChildProc["spawn(command)<br/>shell=true, cwd, env"]
+            Timeout["Timeout handler<br/>SIGTERM then 5s then SIGKILL"]
+            StdOut["Capture stdout<br/>(max 100KB, truncate)"]
             StdErr["Capture stderr"]
         end
 
-        BuildResult["Build ExecResult\nexitCode, signal,\nstdout, stderr,\nduration, timedOut,\ntruncated"]
+        BuildResult["Build ExecResult<br/>exitCode, signal,<br/>stdout, stderr,<br/>duration, timedOut,<br/>truncated"]
     end
 
     subgraph Skills["Allowed Skill Binaries"]
-        GP["goplaces\ngroup: lookup\nenv: GOOGLE_PLACES_API_KEY\ntimeout: 30s"]
-        GG["gifgrep\ngroup: media\ntimeout: 60s"]
-        Sum["summarize\ngroup: summarize\ntimeout: 120s"]
-        G["gog\ngroup: workspace\ntimeout: 45s"]
+        GP["goplaces<br/>group: lookup<br/>env: GOOGLE_PLACES_API_KEY<br/>timeout: 30s"]
+        GG["gifgrep<br/>group: media<br/>timeout: 60s"]
+        Sum["summarize<br/>group: summarize<br/>timeout: 120s"]
+        G["gog<br/>group: workspace<br/>timeout: 45s"]
     end
 
     ExecCall --> IsLocal --> ExtractCmd --> ParseBin --> CheckAllowed
@@ -626,37 +626,37 @@ Queue-based orchestration, sandbox modes, and child session management.
 
 flowchart TB
     subgraph Request["Subagent Request"]
-        Req["SubagentRunRequest\ntask, model,\nsessionConfig,\nsandboxMode"]
+        Req["SubagentRunRequest<br/>task, model,<br/>sessionConfig,<br/>sandboxMode"]
     end
 
     subgraph Orchestrator["SubagentOrchestrator"]
-        Enqueue["enqueue()\n- Generate runId\n- Create workspace dir\n- Create child session\n- Add to queue"]
+        Enqueue["enqueue()<br/>- Generate runId<br/>- Create workspace dir<br/>- Create child session<br/>- Add to queue"]
 
-        Queue["Queue (FIFO)\n[runId, runId, ...]"]
+        Queue["Queue (FIFO)<br/>[runId, runId, ...]"]
 
-        Drain["drainQueue()\nwhile queue.length > 0\nAND running < maxConcurrent"]
+        Drain["drainQueue()<br/>while queue.length > 0<br/>AND running < maxConcurrent"]
 
-        ExecRun["executeRun(entry)\n- Set status=running\n- Call subagentManager.run()\n- Store result\n- Set status=completed|failed"]
+        ExecRun["executeRun(entry)<br/>- Set status=running<br/>- Call subagentManager.run()<br/>- Store result<br/>- Set status=completed|failed"]
 
-        Announce["announce(entry)\n- Build announce prompt\n- Run subagent for summary\n- Publish to requester channel"]
+        Announce["announce(entry)<br/>- Build announce prompt<br/>- Run subagent for summary<br/>- Publish to requester channel"]
 
-        State["Run State\nMap of runId to entry\nstatus: queued|running|\ncompleted|failed"]
+        State["Run State<br/>Map of runId to entry<br/>status: queued|running|<br/>completed|failed"]
     end
 
     subgraph Manager["SubagentManager"]
-        ModeCheck{"task.sandboxMode\nor default mode?"}
-        HostMode["Host Mode\nRun in gateway process\nsendRequest(task.request)"]
-        FullMode["Full Sandbox Mode\nDocker container isolation"]
+        ModeCheck{"task.sandboxMode<br/>or default mode?"}
+        HostMode["Host Mode<br/>Run in gateway process<br/>sendRequest(task.request)"]
+        FullMode["Full Sandbox Mode<br/>Docker container isolation"]
     end
 
     subgraph Docker["DockerSubagentSandbox"]
-        Container["Spawn container\n- Mount workspace\n- Inject env vars\n- Run LLM request"]
-        Cleanup["Container cleanup\non completion"]
+        Container["Spawn container<br/>- Mount workspace<br/>- Inject env vars<br/>- Run LLM request"]
+        Cleanup["Container cleanup<br/>on completion"]
     end
 
     subgraph Session["Child Session"]
-        Create["createSubagentSession()\nchannel='subagent'\nconversationId=runId"]
-        Meta["Session metadata:\nrunId, label, profile,\nagentId, requester,\nworkspaceDir"]
+        Create["createSubagentSession()<br/>channel='subagent'<br/>conversationId=runId"]
+        Meta["Session metadata:<br/>runId, label, profile,<br/>agentId, requester,<br/>workspaceDir"]
     end
 
     Req --> Enqueue
@@ -716,8 +716,8 @@ Policy-gated, audit-hooked access to identity, memory, user profiles, and sessio
 
 flowchart TB
     subgraph SL["StateLayer (Orchestrator)"]
-        PolicyGate["ensureAllowed()\n-> policyCheck()\nDeny = throw error"]
-        AuditHook["auditAllowed()\n-> auditLogger()\nLog all operations"]
+        PolicyGate["ensureAllowed()<br/>-> policyCheck()<br/>Deny = throw error"]
+        AuditHook["auditAllowed()<br/>-> auditLogger()<br/>Log all operations"]
     end
 
     subgraph Stores["Composed Stores"]
@@ -743,14 +743,14 @@ flowchart TB
     end
 
     subgraph Prompt["PromptAssembler"]
-        Assemble["assemblePrompt(params)\nCombines identity + memory\n+ user profile + session\ninto system prompt"]
+        Assemble["assemblePrompt(params)<br/>Combines identity + memory<br/>+ user profile + session<br/>into system prompt"]
     end
 
     subgraph Operations["Available Operations"]
-        IdOps["Identity:\ngetIdentity(agentId)\nputIdentity(profile)\ndeleteIdentity(agentId)"]
-        MemOps["Memory:\nappendMemoryEntry(entry)\nappendMemoryFacts(facts[])\nqueryMemory(query)\ndeleteMemoryEntry(id)"]
-        UPOps["UserProfile:\ngetUserProfile(agentId, userId)\nputUserProfile(profile)\ndeleteUserProfile(agentId, userId)"]
-        SSOps["SessionState:\ngetSessionState(sessionId)\nsetSessionState(record)\ntouchSessionState(sessionId)\ndeleteSessionState(sessionId)"]
+        IdOps["Identity:<br/>getIdentity(agentId)<br/>putIdentity(profile)<br/>deleteIdentity(agentId)"]
+        MemOps["Memory:<br/>appendMemoryEntry(entry)<br/>appendMemoryFacts(facts[])<br/>queryMemory(query)<br/>deleteMemoryEntry(id)"]
+        UPOps["UserProfile:<br/>getUserProfile(agentId, userId)<br/>putUserProfile(profile)<br/>deleteUserProfile(agentId, userId)"]
+        SSOps["SessionState:<br/>getSessionState(sessionId)<br/>setSessionState(record)<br/>touchSessionState(sessionId)<br/>deleteSessionState(sessionId)"]
     end
 
     SL --> PolicyGate
@@ -808,9 +808,9 @@ flowchart TB
     subgraph BusClient["NachosBusClient"]
         Pub["publish(topic, data)"]
         Sub["subscribe(topic, handler)"]
-        ReqRep["request(topic, data, timeout)\nCorrelation ID matching"]
-        Health["health()\nPing + latency"]
-        Events["Event Monitoring\nconnect | disconnect\nreconnect | error"]
+        ReqRep["request(topic, data, timeout)<br/>Correlation ID matching"]
+        Health["health()<br/>Ping + latency"]
+        Events["Event Monitoring<br/>connect | disconnect<br/>reconnect | error"]
     end
 
     subgraph Topics["NATS Topic Namespace"]
@@ -862,8 +862,8 @@ flowchart TB
     end
 
     subgraph Impls["Bus Implementations"]
-        NATS["NatsBusAdapter\nProduction (NATS server)"]
-        InMem["InMemoryMessageBus\nTesting"]
+        NATS["NatsBusAdapter<br/>Production (NATS server)"]
+        InMem["InMemoryMessageBus<br/>Testing"]
     end
 
     BusClient --> Topics
@@ -948,41 +948,41 @@ Provider selection, retry with backoff, cooldown management, failover chain, and
 
 flowchart TB
     subgraph Input["Incoming Request"]
-        LLMReq["LLMRequestType\nsessionId, messages[],\nsystemPrompt, options"]
+        LLMReq["LLMRequestType<br/>sessionId, messages[],<br/>systemPrompt, options"]
     end
 
     subgraph Proxy["LLM Proxy Service"]
         subgraph Handler["handleRequest()"]
-            BuildAttempts["Build attempt list\n1. Primary: config provider + model\n2. Fallbacks: fallback_order[]"]
+            BuildAttempts["Build attempt list<br/>1. Primary: config provider + model<br/>2. Fallbacks: fallback_order[]"]
 
             subgraph AttemptLoop["For each attempt"]
                 GetAdapter["Get adapter from registry"]
-                GetProfiles["Get profiles for provider\n(exclude cooled-down)"]
-                Retry["retryWithBackoff()\nadapter.send(request)\n- Retry on rate_limit\n- Exponential backoff + jitter"]
+                GetProfiles["Get profiles for provider<br/>(exclude cooled-down)"]
+                Retry["retryWithBackoff()<br/>adapter.send(request)<br/>- Retry on rate_limit<br/>- Exponential backoff + jitter"]
             end
 
-            Failover["On rate_limit/limit_reached:\n-> Try next fallback provider"]
+            Failover["On rate_limit/limit_reached:<br/>-> Try next fallback provider"]
         end
 
         subgraph Registry["AdapterRegistry"]
-            AnthropicA["AnthropicAdapter\nAnthropic SDK"]
-            OpenAIA["OpenAIAdapter\nOpenAI SDK"]
-            OllamaAdpt["OllamaAdapter\nLocal REST API"]
+            AnthropicA["AnthropicAdapter<br/>Anthropic SDK"]
+            OpenAIA["OpenAIAdapter<br/>OpenAI SDK"]
+            OllamaAdpt["OllamaAdapter<br/>Local REST API"]
         end
 
         subgraph Cooldowns["CooldownManager"]
-            ProfileCD["Per-profile cooldowns\nExponential backoff:\nbase=60s, factor=2, max=900s"]
+            ProfileCD["Per-profile cooldowns<br/>Exponential backoff:<br/>base=60s, factor=2, max=900s"]
         end
 
         subgraph Metrics["Metrics Emission"]
-            Usage["Token usage tracking\npromptTokens\ncompletionTokens\ntotalTokens"]
-            Latency["Latency tracking\nrequestMs\ntimeToFirstChunk"]
-            FailoverEvt["Failover events\nprovider, reason"]
+            Usage["Token usage tracking<br/>promptTokens<br/>completionTokens<br/>totalTokens"]
+            Latency["Latency tracking<br/>requestMs<br/>timeToFirstChunk"]
+            FailoverEvt["Failover events<br/>provider, reason"]
         end
     end
 
     subgraph Streaming["Streaming Support"]
-        StreamHandler["handleStream(request, onChunk)\n- adapter.stream() if available\n- Falls back to adapter.send()\n- Publishes chunks to\n  nachos.llm.stream.{sessionId}"]
+        StreamHandler["handleStream(request, onChunk)<br/>- adapter.stream() if available<br/>- Falls back to adapter.send()<br/>- Publishes chunks to<br/>  nachos.llm.stream.{sessionId}"]
     end
 
     subgraph Providers["External LLM APIs"]
@@ -1048,34 +1048,34 @@ Base adapter, platform-specific implementations, and bus integration.
 
 flowchart TB
     subgraph Base["Base Channel Adapter (@nachos/channel-base)"]
-        Factory["createChannelBus()\nWraps NATS for channel topics"]
-        DmPolicy["resolveDmPolicy()\nGet DM policy from config"]
-        GroupPolicy["resolveGroupPolicy()\nGet group message policy"]
-        PairingStore["createPairingStore()\nUser pairing for permissions"]
-        PairCmd["parsePairingCommand()\nHandle /pair commands"]
+        Factory["createChannelBus()<br/>Wraps NATS for channel topics"]
+        DmPolicy["resolveDmPolicy()<br/>Get DM policy from config"]
+        GroupPolicy["resolveGroupPolicy()<br/>Get group message policy"]
+        PairingStore["createPairingStore()<br/>User pairing for permissions"]
+        PairCmd["parsePairingCommand()<br/>Handle /pair commands"]
     end
 
     subgraph SlackCh["Slack Channel"]
         SlackSDK["@slack/bolt SDK"]
-        SocketMode["Socket Mode (WebSocket)\nor HTTP Webhooks"]
-        SlackHandler["Message Handler\n-> Normalize to ChannelInboundMessage\n-> Publish to NATS"]
-        SlackAllow["User allowlist\nper workspace"]
+        SocketMode["Socket Mode (WebSocket)<br/>or HTTP Webhooks"]
+        SlackHandler["Message Handler<br/>-> Normalize to ChannelInboundMessage<br/>-> Publish to NATS"]
+        SlackAllow["User allowlist<br/>per workspace"]
     end
 
     subgraph DiscordCh["Discord Channel"]
         DiscordSDK["discord.js SDK"]
-        DiscordHandler["Message Handler\n-> Normalize\n-> Publish to NATS"]
-        DiscordAllow["User allowlist\nper server"]
+        DiscordHandler["Message Handler<br/>-> Normalize<br/>-> Publish to NATS"]
+        DiscordAllow["User allowlist<br/>per server"]
     end
 
     subgraph TelegramCh["Telegram Channel"]
         TelegramSDK["Telegram Bot API"]
-        TelegramHandler["Message Handler\n-> Normalize\n-> Publish to NATS"]
+        TelegramHandler["Message Handler<br/>-> Normalize<br/>-> Publish to NATS"]
     end
 
     subgraph WhatsAppCh["WhatsApp Channel"]
         WhatsAppSDK["WhatsApp Business API"]
-        WhatsAppHandler["Message Handler\n-> Normalize\n-> Publish to NATS"]
+        WhatsAppHandler["Message Handler<br/>-> Normalize<br/>-> Publish to NATS"]
     end
 
     Base --> SlackCh & DiscordCh & TelegramCh & WhatsAppCh
@@ -1102,32 +1102,32 @@ SKILL.md loading, prompt injection, exec flow, and tool group policy gating.
 
 flowchart TB
     subgraph SkillFiles["SKILL.md Files (skills/)"]
-        GP["goplaces/SKILL.md\n----------\nname: goplaces\ngroup: lookup\nbins: [goplaces]\nenv: [GOOGLE_PLACES_API_KEY]"]
-        GG["gifgrep/SKILL.md\n----------\nname: gifgrep\ngroup: media\nbins: [gifgrep]"]
-        SM["summarize/SKILL.md\n----------\nname: summarize\ngroup: summarize\nbins: [summarize]"]
-        G["gog/SKILL.md\n----------\nname: gog\ngroup: workspace\nbins: [gog]"]
+        GP["goplaces/SKILL.md<br/>----------<br/>name: goplaces<br/>group: lookup<br/>bins: [goplaces]<br/>env: [GOOGLE_PLACES_API_KEY]"]
+        GG["gifgrep/SKILL.md<br/>----------<br/>name: gifgrep<br/>group: media<br/>bins: [gifgrep]"]
+        SM["summarize/SKILL.md<br/>----------<br/>name: summarize<br/>group: summarize<br/>bins: [summarize]"]
+        G["gog/SKILL.md<br/>----------<br/>name: gog<br/>group: workspace<br/>bins: [gog]"]
     end
 
     subgraph Loader["SkillLoader"]
-        Parse["Parse YAML frontmatter\n+ markdown body"]
-        Filter["Filter by tool groups\n(policy-controlled)"]
-        Inject["Inject into LLM\nsystem prompt"]
+        Parse["Parse YAML frontmatter<br/>+ markdown body"]
+        Filter["Filter by tool groups<br/>(policy-controlled)"]
+        Inject["Inject into LLM<br/>system prompt"]
     end
 
     subgraph Execution["Execution Flow"]
-        LLM["LLM reads SKILL.md\nin system prompt"]
-        Call["LLM calls exec()\n{command: 'goplaces search coffee'}"]
-        TC["ToolCoordinator\nevaluates policy"]
-        LTH["LocalToolHandler\nroutes to ShellTool"]
-        STExec["ShellTool\nspawns subprocess"]
-        ResultExec["Output returned\nto LLM context"]
+        LLM["LLM reads SKILL.md<br/>in system prompt"]
+        Call["LLM calls exec()<br/>{command: 'goplaces search coffee'}"]
+        TC["ToolCoordinator<br/>evaluates policy"]
+        LTH["LocalToolHandler<br/>routes to ShellTool"]
+        STExec["ShellTool<br/>spawns subprocess"]
+        ResultExec["Output returned<br/>to LLM context"]
     end
 
     subgraph Groups["Tool Groups (Policy)"]
-        Lookup["lookup\ngoplaces"]
-        Media["media\ngifgrep"]
-        SumGroup["summarize\nsummarize"]
-        Workspace["workspace\ngog"]
+        Lookup["lookup<br/>goplaces"]
+        Media["media<br/>gifgrep"]
+        SumGroup["summarize<br/>summarize"]
+        Workspace["workspace<br/>gog"]
     end
 
     SkillFiles --> Parse --> Filter --> Inject
@@ -1148,26 +1148,26 @@ Event sources, composite provider fan-out, and audit event schema.
 
 flowchart TB
     subgraph Sources["Audit Event Sources"]
-        GatewayA["Gateway\nSession events"]
-        SalsaA["Salsa\nPolicy decisions"]
-        ToolsA["ToolCoordinator\nTool executions"]
-        StateLA["StateLayer\nState operations"]
-        RouterA["Router\nMessage routing"]
+        GatewayA["Gateway<br/>Session events"]
+        SalsaA["Salsa<br/>Policy decisions"]
+        ToolsA["ToolCoordinator<br/>Tool executions"]
+        StateLA["StateLayer<br/>State operations"]
+        RouterA["Router<br/>Message routing"]
     end
 
     subgraph Logger["AuditLogger"]
-        Emit["emit(event)\nNormalize + timestamp"]
+        Emit["emit(event)<br/>Normalize + timestamp"]
     end
 
     subgraph ProvidersA["Audit Providers"]
-        Composite["CompositeAuditProvider\nFans out to multiple"]
-        FileP["FileAuditProvider\nJSON lines to file"]
-        SQLiteP["SQLiteAuditProvider\nStructured storage"]
-        WebhookP["WebhookAuditProvider\nHTTP POST delivery"]
+        Composite["CompositeAuditProvider<br/>Fans out to multiple"]
+        FileP["FileAuditProvider<br/>JSON lines to file"]
+        SQLiteP["SQLiteAuditProvider<br/>Structured storage"]
+        WebhookP["WebhookAuditProvider<br/>HTTP POST delivery"]
     end
 
     subgraph Event["AuditEvent"]
-        Fields["eventId: UUID\ntimestamp: ISO\neventType: string\noutcome: allow|deny|error\nuserId: string\nsessionId: string\nresource: {type, id}\naction: string\nmetadata: Record\ndurationMs: number"]
+        Fields["eventId: UUID<br/>timestamp: ISO<br/>eventType: string<br/>outcome: allow|deny|error<br/>userId: string<br/>sessionId: string<br/>resource: {type, id}<br/>action: string<br/>metadata: Record<br/>durationMs: number"]
     end
 
     Sources --> Logger
@@ -1188,20 +1188,20 @@ All containers with their base images, resource limits, and network assignments.
 flowchart TB
     subgraph Compose["Docker Compose"]
         subgraph Internal["nachos-internal (isolated, no external access)"]
-            gateway["gateway\n--------\nnode:22-alpine\nnon-root, read-only FS\n512MB\n--------\nRouter, Salsa,\nToolCoord, SubagentOrch,\nContextMgr, StateLayer,\nAudit, DLP, ShellTool"]
-            bus["bus\n--------\nnats:alpine\nnon-root\n256MB\n--------\nNATS Server\nPorts: 4222, 8222"]
-            filesystem["filesystem\n--------\nnode:22-alpine\nnon-root\n128MB\n--------\nFile read/write"]
-            coderunner["code-runner\n--------\nnode:22-alpine\nsandboxed\n512MB\n--------\nJS/Python execution"]
+            gateway["gateway<br/>--------<br/>node:22-alpine<br/>non-root, read-only FS<br/>512MB<br/>--------<br/>Router, Salsa,<br/>ToolCoord, SubagentOrch,<br/>ContextMgr, StateLayer,<br/>Audit, DLP, ShellTool"]
+            bus["bus<br/>--------<br/>nats:alpine<br/>non-root<br/>256MB<br/>--------<br/>NATS Server<br/>Ports: 4222, 8222"]
+            filesystem["filesystem<br/>--------<br/>node:22-alpine<br/>non-root<br/>128MB<br/>--------<br/>File read/write"]
+            coderunner["code-runner<br/>--------<br/>node:22-alpine<br/>sandboxed<br/>512MB<br/>--------<br/>JS/Python execution"]
         end
 
         subgraph EgressNet["nachos-egress (controlled external access)"]
-            llmproxy["llm-proxy\n--------\nnode:22-alpine\n-> LLM APIs only\n256MB\n--------\nAnthropic, OpenAI, Ollama"]
-            webchat["webchat\n--------\nnode:22-alpine\n-> port 8080\n256MB"]
-            slack["slack\n--------\nnode:22-alpine\n-> slack.com\n256MB"]
-            discord["discord\n--------\nnode:22-alpine\n-> discord.com\n256MB"]
-            telegram["telegram\n--------\nnode:22-alpine\n-> api.telegram.org\n256MB"]
-            browser["browser\n--------\nplaywright\n-> configured domains\n1GB"]
-            webfetch["web-fetch\n--------\nnode:22-alpine\n-> allowed URLs\n256MB\nSSRF protection"]
+            llmproxy["llm-proxy<br/>--------<br/>node:22-alpine<br/>-> LLM APIs only<br/>256MB<br/>--------<br/>Anthropic, OpenAI, Ollama"]
+            webchat["webchat<br/>--------<br/>node:22-alpine<br/>-> port 8080<br/>256MB"]
+            slack["slack<br/>--------<br/>node:22-alpine<br/>-> slack.com<br/>256MB"]
+            discord["discord<br/>--------<br/>node:22-alpine<br/>-> discord.com<br/>256MB"]
+            telegram["telegram<br/>--------<br/>node:22-alpine<br/>-> api.telegram.org<br/>256MB"]
+            browser["browser<br/>--------<br/>playwright<br/>-> configured domains<br/>1GB"]
+            webfetch["web-fetch<br/>--------<br/>node:22-alpine<br/>-> allowed URLs<br/>256MB<br/>SSRF protection"]
         end
     end
 
@@ -1241,12 +1241,12 @@ flowchart TB
     end
 
     subgraph EgressNetDiag["nachos-egress (controlled external)"]
-        llm["LLM Proxy\n-> anthropic, openai"]
-        slackC["Slack\n-> slack.com"]
-        discordC["Discord\n-> discord.com"]
-        telegramC["Telegram\n-> telegram.org"]
-        browserC["Browser\n-> configured domains"]
-        webfetchC["Web Fetch\n-> allowed URLs"]
+        llm["LLM Proxy<br/>-> anthropic, openai"]
+        slackC["Slack<br/>-> slack.com"]
+        discordC["Discord<br/>-> discord.com"]
+        telegramC["Telegram<br/>-> telegram.org"]
+        browserC["Browser<br/>-> configured domains"]
+        webfetchC["Web Fetch<br/>-> allowed URLs"]
     end
 
     subgraph InternalNet["nachos-internal (no external access)"]
@@ -1287,28 +1287,28 @@ TOML loading, schema validation, env interpolation, hot-reload, and Docker Compo
 
 flowchart LR
     subgraph Sources["Configuration Sources"]
-        TOML["nachos.toml\n(primary config)"]
-        ENV[".env file\n+ shell env vars"]
-        CLI["CLI flags\n(overrides)"]
+        TOML["nachos.toml<br/>(primary config)"]
+        ENV[".env file<br/>+ shell env vars"]
+        CLI["CLI flags<br/>(overrides)"]
     end
 
     subgraph Loader["@nachos/config"]
-        LoadTOML["loader.ts\nParse TOML from disk"]
-        Schema["schema.ts\nNachosConfig schema"]
-        Validate["validation.ts\nValidate against schema"]
-        EnvOverlay["env.ts\nEnvironment variable\ninterpolation"]
-        RuntimeOL["runtime-overlay.ts\nRuntime state persistence"]
-        Merge["Merge all sources\nCLI > ENV > TOML"]
+        LoadTOML["loader.ts<br/>Parse TOML from disk"]
+        Schema["schema.ts<br/>NachosConfig schema"]
+        Validate["validation.ts<br/>Validate against schema"]
+        EnvOverlay["env.ts<br/>Environment variable<br/>interpolation"]
+        RuntimeOL["runtime-overlay.ts<br/>Runtime state persistence"]
+        Merge["Merge all sources<br/>CLI > ENV > TOML"]
     end
 
     subgraph HotReload["Hot Reload"]
-        Watch["hotreload.ts\nFile watcher"]
-        RegistryHR["registry.ts\nNotify subscribers"]
+        Watch["hotreload.ts<br/>File watcher"]
+        RegistryHR["registry.ts<br/>Notify subscribers"]
         Publish["Bus: nachos.config.updated"]
     end
 
     subgraph Output["Validated Config"]
-        NachosConfig["NachosConfig\n- nachos (name, version)\n- llm (provider, model, profiles)\n- channels (slack, discord, etc.)\n- security (mode, audit)\n- tools (browser, filesystem, etc.)\n- context (sliding_window, etc.)"]
+        NachosConfig["NachosConfig<br/>- nachos (name, version)<br/>- llm (provider, model, profiles)<br/>- channels (slack, discord, etc.)<br/>- security (mode, audit)<br/>- tools (browser, filesystem, etc.)<br/>- context (sliding_window, etc.)"]
     end
 
     subgraph Generated["Generated Artifacts"]
@@ -1342,14 +1342,14 @@ flowchart TD
     Req["Incoming Request"] --> RL
 
     subgraph Gates["Security Gates (in order)"]
-        RL["1. Rate Limiter\nToken bucket per user/action"]
-        Policy["2. Salsa Policy Check\nresource + action + conditions"]
-        DLPScan["3. DLP Scanner\nSensitive data detection"]
-        ToolPolicy["4. Tool Policy Check\nTool-specific rules"]
-        Approval["5. Approval Manager\n(RESTRICTED tier only)"]
-        Cache["6. Tool Cache\nSkip if cached"]
-        StatePolicy["7. State Layer Policy\nAccess control on state ops"]
-        Audit["8. Audit Logger\nRecord all events"]
+        RL["1. Rate Limiter<br/>Token bucket per user/action"]
+        Policy["2. Salsa Policy Check<br/>resource + action + conditions"]
+        DLPScan["3. DLP Scanner<br/>Sensitive data detection"]
+        ToolPolicy["4. Tool Policy Check<br/>Tool-specific rules"]
+        Approval["5. Approval Manager<br/>(RESTRICTED tier only)"]
+        Cache["6. Tool Cache<br/>Skip if cached"]
+        StatePolicy["7. State Layer Policy<br/>Access control on state ops"]
+        Audit["8. Audit Logger<br/>Record all events"]
     end
 
     RL -->|Under limit| Policy
@@ -1440,21 +1440,21 @@ All `@nachos/*` packages and their dependency relationships.
 
 flowchart BT
     subgraph Shared["Shared Packages"]
-        Types["@nachos/types\nSchemas, interfaces,\nerror definitions"]
-        Utils["@nachos/utils\nUtility functions"]
-        ConfigPkg["@nachos/config\nTOML loading,\nvalidation, hot-reload"]
-        CtxMgrPkg["@nachos/context-manager\nBudget, sliding window,\nextraction, summarization"]
-        ToolBasePkg["@nachos/tool-base\nTool interface\nabstractions"]
+        Types["@nachos/types<br/>Schemas, interfaces,<br/>error definitions"]
+        Utils["@nachos/utils<br/>Utility functions"]
+        ConfigPkg["@nachos/config<br/>TOML loading,<br/>validation, hot-reload"]
+        CtxMgrPkg["@nachos/context-manager<br/>Budget, sliding window,<br/>extraction, summarization"]
+        ToolBasePkg["@nachos/tool-base<br/>Tool interface<br/>abstractions"]
     end
 
     subgraph Core["Core Packages"]
-        BusPkg["@nachos/bus\nNATS client wrapper"]
-        GatewayPkg["@nachos/gateway\nRouter, Sessions, Salsa,\nTools, Subagents, State"]
-        LLMProxyPkg["@nachos/llm-proxy\nProvider adapters,\nretry, cooldowns"]
+        BusPkg["@nachos/bus<br/>NATS client wrapper"]
+        GatewayPkg["@nachos/gateway<br/>Router, Sessions, Salsa,<br/>Tools, Subagents, State"]
+        LLMProxyPkg["@nachos/llm-proxy<br/>Provider adapters,<br/>retry, cooldowns"]
     end
 
     subgraph ChannelsPkg["Channel Packages"]
-        ChBase["@nachos/channel-base\nPolicy, pairing, factory"]
+        ChBase["@nachos/channel-base<br/>Policy, pairing, factory"]
         ChSlack["@nachos/channel-slack"]
         ChDiscord["@nachos/channel-discord"]
         ChTelegram["@nachos/channel-telegram"]
@@ -1471,7 +1471,7 @@ flowchart BT
     end
 
     subgraph CLIPkg["CLI"]
-        NachosCLI["@nachos/cli\nCommander.js"]
+        NachosCLI["@nachos/cli<br/>Commander.js"]
     end
 
     Types --> Utils
@@ -1509,12 +1509,12 @@ Full command hierarchy including subagent and memory management.
 flowchart TD
     nachos["nachos"]
 
-    nachos --> init["init\nInitialize config"]
-    nachos --> up["up [services...]\nStart stack"]
-    nachos --> down["down\nStop stack"]
-    nachos --> restart["restart [service]\nRestart service"]
-    nachos --> logs["logs [service]\nAggregated logs"]
-    nachos --> status["status\nService health"]
+    nachos --> init["init<br/>Initialize config"]
+    nachos --> up["up [services...]<br/>Start stack"]
+    nachos --> down["down<br/>Stop stack"]
+    nachos --> restart["restart [service]<br/>Restart service"]
+    nachos --> logs["logs [service]<br/>Aggregated logs"]
+    nachos --> status["status<br/>Service health"]
 
     nachos --> add["add"]
     add --> add_channel["channel name"]
@@ -1535,14 +1535,14 @@ flowchart TD
     nachos --> policy["policy"]
     policy --> policy_validate["validate"]
 
-    nachos --> doctor["doctor\nDiagnostics"]
+    nachos --> doctor["doctor<br/>Diagnostics"]
     nachos --> version["version"]
 
     nachos --> create["create"]
     create --> create_channel["channel name"]
     create --> create_tool["tool name"]
 
-    nachos --> chat["chat\nInteractive"]
+    nachos --> chat["chat<br/>Interactive"]
 
     nachos --> subagents["subagents"]
     subagents --> sa_list["list"]
