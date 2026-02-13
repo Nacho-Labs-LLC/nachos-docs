@@ -14,6 +14,7 @@ Tools give the assistant capabilities beyond text generation — browsing the we
 | Browser      | Web navigation and content extraction | 1 (Standard) | `[tools.browser]`      |
 | Filesystem   | Read/write files in workspace        | 1–2           | `[tools.filesystem]`   |
 | Code Runner  | Execute code in a sandbox            | 2 (Elevated)  | `[tools.code_runner]`  |
+| Bootstrap    | Manage bootstrap blocks (internal)   | 0 (Safe)      | `[tools.bootstrap]`    |
 
 ## Enabling a tool
 
@@ -64,3 +65,4 @@ rate_limit_per_minute = 10
 - [Browser](/tools/browser)
 - [Filesystem](/tools/filesystem)
 - [Code Runner](/tools/code-runner)
+- [Bootstrap](/tools/bootstrap)

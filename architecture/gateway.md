@@ -21,7 +21,7 @@ The gateway is the control plane of Nachos. Every message and tool call flows th
 | File                                     | Purpose                        |
 |------------------------------------------|--------------------------------|
 | `core/gateway/src/router.ts`             | Message routing logic          |
-| `core/gateway/src/salsa/policy/evaluator.ts` | Policy evaluation engine  |
+| `core/gateway/src/cheese/policy/evaluator.ts` | Policy evaluation engine  |
 | `core/gateway/src/tools/shell-tool.ts`   | CLI tool execution             |
 | `core/gateway/src/skills/skill-loader.ts`| SKILL.md parsing               |
 

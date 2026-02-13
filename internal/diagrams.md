@@ -7,7 +7,7 @@ description: "Internal reference — interactive Mermaid diagrams of every Nacho
 
 Internal reference for the Nachos team. All diagrams are interactive — zoom and pan with the controls that appear on hover.
 
-**Jump to:** [System Overview](#system-overview) | [Gateway](#gateway-internals) | [Message Flow](#message-flow) | [Policy Engine](#salsa-policy-engine) | [Context Management](#context-management) | [Tool Execution](#tool-execution) | [Subagents](#subagent-system) | [State Layer](#state-layer) | [Bus](#nats-message-bus) | [LLM Proxy](#llm-proxy) | [Channels](#channels-architecture) | [Skills](#skills-system) | [Audit](#audit-system) | [Containers](#container-architecture) | [Network](#network-topology) | [Config Flow](#configuration-flow) | [Security Gates](#security-gate-sequence) | [Session Lifecycle](#session-lifecycle) | [Package Graph](#monorepo-package-graph) | [CLI Tree](#cli-command-tree)
+**Jump to:** [System Overview](#system-overview) | [Gateway](#gateway-internals) | [Message Flow](#message-flow) | [Policy Engine](#cheese-policy-engine) | [Context Management](#context-management) | [Tool Execution](#tool-execution) | [Subagents](#subagent-system) | [State Layer](#state-layer) | [Bus](#nats-message-bus) | [LLM Proxy](#llm-proxy) | [Channels](#channels-architecture) | [Skills](#skills-system) | [Audit](#audit-system) | [Containers](#container-architecture) | [Network](#network-topology) | [Config Flow](#configuration-flow) | [Security Gates](#security-gate-sequence) | [Session Lifecycle](#session-lifecycle) | [Package Graph](#monorepo-package-graph) | [CLI Tree](#cli-command-tree)
 
 ---
 
@@ -40,7 +40,7 @@ flowchart TB
             subgraph GatewayBox["Gateway (Orchestrator)"]
                 Router["Router<br/>Message Routing"]
                 SessionMgr["SessionManager<br/>Session CRUD"]
-                Salsa["Salsa<br/>Policy Engine"]
+                Cheese["Cheese<br/>Policy Engine"]
                 ToolCoord["ToolCoordinator<br/>Tool Execution"]
                 SubagentOrch["SubagentOrchestrator<br/>Subagent Queue"]
                 CtxMgr["ContextManager<br/>Token Budget"]
@@ -135,7 +135,7 @@ flowchart TB
         end
 
         subgraph Security["Security"]
-            Salsa["Salsa Policy Engine<br/>- evaluate()<br/>- reload()<br/>- getStats()"]
+            Cheese["Cheese Policy Engine<br/>- evaluate()<br/>- reload()<br/>- getStats()"]
             DLPLayer["DLP Security Layer<br/>Content scanning<br/>Sensitive data detection"]
             AuditLogger["AuditLogger<br/>File | SQLite | Webhook<br/>Composite provider"]
         end
@@ -169,11 +169,11 @@ flowchart TB
         end
     end
 
-    Config --> Router & SessionManager & Salsa & ToolCoordinator & SubagentOrch & SL
+    Config --> Router & SessionManager & Cheese & ToolCoordinator & SubagentOrch & SL
     Router --> RateLimiter
     Router --> CtxManager
     SessionManager --> StateStorage
-    ToolCoordinator --> Salsa & LocalToolHandler & ToolCache & ApprovalManager
+    ToolCoordinator --> Cheese & LocalToolHandler & ToolCache & ApprovalManager
     SubagentOrch --> SubagentMgr
     SubagentMgr --> DockerSandbox
     SL --> PromptAsm
@@ -192,7 +192,7 @@ sequenceDiagram
     participant Ch as Channel Container
     participant Bus as NATS Bus
     participant RL as RateLimiter
-    participant S as Salsa
+    participant S as Cheese
     participant DLP as DLP Scanner
     participant R as Router
     participant SM as SessionManager
@@ -266,7 +266,7 @@ sequenceDiagram
 
 ---
 
-## Salsa Policy Engine
+## Cheese Policy Engine
 
 Policy loading, evaluation, condition matching, and decision output.
 
@@ -278,7 +278,7 @@ flowchart TB
         Req["SecurityRequest<br/>----------<br/>requestId<br/>userId, sessionId<br/>securityMode<br/>resource: {type, id}<br/>action: string<br/>metadata: {...}<br/>timestamp"]
     end
 
-    subgraph Salsa["Salsa Policy Engine"]
+    subgraph Cheese["Cheese Policy Engine"]
 
         subgraph Loader["PolicyLoader"]
             YAML["policies/*.yaml<br/>strict | standard | permissive"]
@@ -514,7 +514,7 @@ flowchart TB
         subgraph Single["executeSingle(call)"]
             ResolveTier["Resolve Security Tier<br/>- code_runner -> RESTRICTED<br/>- filesystem_write -> ELEVATED<br/>- browser -> STANDARD<br/>- read/list -> SAFE"]
 
-            PolicyCheck["Salsa Policy Check<br/>evaluate(resource=tool,<br/>action=execute)"]
+            PolicyCheck["Cheese Policy Check<br/>evaluate(resource=tool,<br/>action=execute)"]
 
             ApprovalCheck["Approval Check<br/>(if RESTRICTED tier)"]
 
@@ -1149,7 +1149,7 @@ Event sources, composite provider fan-out, and audit event schema.
 flowchart TB
     subgraph Sources["Audit Event Sources"]
         GatewayA["Gateway<br/>Session events"]
-        SalsaA["Salsa<br/>Policy decisions"]
+        CheeseA["Cheese<br/>Policy decisions"]
         ToolsA["ToolCoordinator<br/>Tool executions"]
         StateLA["StateLayer<br/>State operations"]
         RouterA["Router<br/>Message routing"]
@@ -1188,7 +1188,7 @@ All containers with their base images, resource limits, and network assignments.
 flowchart TB
     subgraph Compose["Docker Compose"]
         subgraph Internal["nachos-internal (isolated, no external access)"]
-            gateway["gateway<br/>--------<br/>node:22-alpine<br/>non-root, read-only FS<br/>512MB<br/>--------<br/>Router, Salsa,<br/>ToolCoord, SubagentOrch,<br/>ContextMgr, StateLayer,<br/>Audit, DLP, ShellTool"]
+            gateway["gateway<br/>--------<br/>node:22-alpine<br/>non-root, read-only FS<br/>512MB<br/>--------<br/>Router, Cheese,<br/>ToolCoord, SubagentOrch,<br/>ContextMgr, StateLayer,<br/>Audit, DLP, ShellTool"]
             bus["bus<br/>--------<br/>nats:alpine<br/>non-root<br/>256MB<br/>--------<br/>NATS Server<br/>Ports: 4222, 8222"]
             filesystem["filesystem<br/>--------<br/>node:22-alpine<br/>non-root<br/>128MB<br/>--------<br/>File read/write"]
             coderunner["code-runner<br/>--------<br/>node:22-alpine<br/>sandboxed<br/>512MB<br/>--------<br/>JS/Python execution"]
@@ -1343,7 +1343,7 @@ flowchart TD
 
     subgraph Gates["Security Gates (in order)"]
         RL["1. Rate Limiter<br/>Token bucket per user/action"]
-        Policy["2. Salsa Policy Check<br/>resource + action + conditions"]
+        Policy["2. Cheese Policy Check<br/>resource + action + conditions"]
         DLPScan["3. DLP Scanner<br/>Sensitive data detection"]
         ToolPolicy["4. Tool Policy Check<br/>Tool-specific rules"]
         Approval["5. Approval Manager<br/>(RESTRICTED tier only)"]
@@ -1449,7 +1449,7 @@ flowchart BT
 
     subgraph Core["Core Packages"]
         BusPkg["@nachos/bus<br/>NATS client wrapper"]
-        GatewayPkg["@nachos/gateway<br/>Router, Sessions, Salsa,<br/>Tools, Subagents, State"]
+        GatewayPkg["@nachos/gateway<br/>Router, Sessions, Cheese,<br/>Tools, Subagents, State"]
         LLMProxyPkg["@nachos/llm-proxy<br/>Provider adapters,<br/>retry, cooldowns"]
     end
 
