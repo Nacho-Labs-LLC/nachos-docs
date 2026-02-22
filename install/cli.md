@@ -33,15 +33,28 @@ yarn global add @nachos/cli
 
 ## Shell completions
 
-Generate completions for your shell:
+Generate and install a completion script for your shell:
 
 ```bash
-# bash
-nachos completions bash >> ~/.bashrc
+# Bash (Linux)
+nachos completion bash | sudo tee /etc/bash_completion.d/nachos > /dev/null
 
-# zsh
-nachos completions zsh >> ~/.zshrc
+# Bash (macOS with Homebrew)
+nachos completion bash > "$(brew --prefix)/etc/bash_completion.d/nachos"
+
+# Zsh
+mkdir -p ~/.zsh/completion
+nachos completion zsh > ~/.zsh/completion/_nachos
+echo 'fpath=(~/.zsh/completion $fpath)' >> ~/.zshrc
+
+# Fish
+nachos completion fish > ~/.config/fish/completions/nachos.fish
+
+# PowerShell
+nachos completion powershell | Out-String | Invoke-Expression
 ```
+
+Then restart your shell or source your config file (e.g. `source ~/.zshrc`).
 
 ## Gotchas
 

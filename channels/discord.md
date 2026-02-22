@@ -62,6 +62,32 @@ nachos restart
 nachos status
 ```
 
+## Status reactions
+
+Nachos adds emoji reactions to messages in real time to show what the assistant is doing.
+
+| Emoji | Meaning |
+| ----- | ------- |
+| 🧠 | Thinking |
+| 🛠️ | Using a tool |
+| 💻 | Running code or editing files |
+| 🌐 | Fetching from the web |
+| ✅ | Done |
+| ❌ | Error |
+| ⏳ | Still working (10 s) |
+| ⚠️ | Long wait (30 s) |
+
+Reactions are debounced to avoid hitting Discord rate limits. The ✅ and ❌ reactions auto-remove after a short hold so the message stays clean.
+
+Status reactions are enabled by default. To disable them, add to `nachos.toml`:
+
+```toml
+[channels.discord.status_reactions]
+enabled = false
+```
+
+> **Permissions**: The bot needs **Add Reactions** permission in your server for status emojis to appear. If reactions are missing, check bot permissions in the Discord server settings.
+
 ## Gotchas
 
 - **Server ID**: Right-click the server name in Discord > **Copy Server ID** (enable Developer Mode in Discord settings first).

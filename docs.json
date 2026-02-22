@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Nachos",
-  "theme": "mint",
+  "theme": "maple",
   "colors": {
-    "primary": "#F2A93B",
-    "dark": "#F2A93B",
-    "light": "#F6C36C"
+    "primary": "#E8952A",
+    "dark": "#C87818",
+    "light": "#F2A93B"
   },
   "navbar": {
     "links": [
@@ -14,6 +14,19 @@
         "href": "https://github.com/Nacho-Labs-LLC/nachos"
       }
     ]
+  },
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/Nacho-Labs-LLC/nachos"
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/Nacho-Labs-LLC/nachos"
+  },
+  "search": {
+    "prompt": "Search Nachos docs..."
   },
   "navigation": {
     "languages": [
@@ -53,6 +66,13 @@
             "groups": [
               { "group": "Overview", "pages": ["tools/index"] },
               { "group": "Built-in", "pages": ["tools/browser", "tools/filesystem", "tools/code-runner"] }
+            ]
+          },
+          {
+            "tab": "Skills",
+            "groups": [
+              { "group": "Overview", "pages": ["skills/index"] },
+              { "group": "Built-in", "pages": ["skills/goplaces", "skills/gifgrep", "skills/summarize", "skills/gog"] }
             ]
           },
           {
