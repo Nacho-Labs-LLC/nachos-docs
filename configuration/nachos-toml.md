@@ -88,9 +88,65 @@ runtime = "sandboxed"
 languages = ["python", "javascript", "typescript"]
 timeout = 30
 max_memory = "256MB"
+
+[tools.github]
+enabled = true
+default_repo = "owner/repo"
+token_env = "GH_TOKEN"
+repo_allowlist = ["owner/repo"]
+
+[tools.bitbucket]
+enabled = true
+default_workspace = "myworkspace"
+auth_type = "app_password"
+username_env = "BITBUCKET_USERNAME"
+password_env = "BITBUCKET_APP_PASSWORD"
+workspace_allowlist = ["myworkspace"]
+
+[tools.web_search]
+enabled = true
+api_key = "${BRAVE_API_KEY}"
+default_country = "US"
+safe_search = "moderate"
+max_results = 10
+
+[tools.web_fetch_native]
+enabled = true
+timeout_ms = 10000
+max_chars = 50000
+domain_allowlist = ["docs.nachos.dev", "github.com"]
+
+[tools.composio]
+enabled = true
+api_key = "${COMPOSIO_API_KEY}"
+entity_id = "default"
+allowed_apps = ["gmail", "googlecalendar", "googledocs", "googlemeet", "googledrive", "linkedin"]
 ```
 
 See [Tools](/tools/index) for per-tool configuration.
+
+### `[scheduler]` — Cron scheduling
+
+```toml
+[scheduler]
+enabled = true
+timezone = "America/New_York"
+check_interval_ms = 60000
+```
+
+See [Cron Scheduling](/tools/cron) for details.
+
+### `[heartbeat]` — Proactive checks
+
+```toml
+[heartbeat]
+enabled = true
+intervalMinutes = 30
+channel = "discord"
+prompt = "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK."
+```
+
+See [Heartbeat System](/tools/heartbeat) for details.
 
 ### `[security]` — Security mode and policies
 

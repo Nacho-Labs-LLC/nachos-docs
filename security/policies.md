@@ -56,22 +56,95 @@ Users not on the allowlist are silently ignored in `strict` mode, or prompted fo
 
 Tools are assigned security tiers that determine their default policy:
 
-| Tier | Level      | Examples                  | Default in standard mode |
-|------|------------|---------------------------|--------------------------|
-| 0    | Safe       | web_fetch, goplaces       | Allowed                  |
-| 1    | Standard   | browser, filesystem (ro)  | Allowed                  |
-| 2    | Elevated   | filesystem (rw), code_runner | Allowed with audit    |
-| 3    | Restricted | shell                     | Denied                   |
-| 4    | Dangerous  | —                         | Denied                   |
+| Tier | Level      | Examples                                  | Default in standard mode |
+|------|------------|-------------------------------------------|--------------------------|
+| 0    | Safe       | web_search, web_fetch_native, goplaces    | Allowed                  |
+| 1    | Standard   | browser, filesystem (ro), github, bitbucket | Allowed                  |
+| 2    | Elevated   | filesystem (rw), code_runner, composio    | Allowed with audit       |
+| 3    | Restricted | shell, cron (modify others' jobs)         | Denied                   |
+| 4    | Dangerous  | —                                         | Denied                   |
 
 Override per-tool defaults in `nachos.toml`:
 
 ```toml
-[tools.overrides.goplaces]
+[tools.overrides.github]
 security_tier = 2
 require_approval = true
 rate_limit_per_minute = 10
 ```
+
+## New Tool Policies
+
+### GitHub & Bitbucket
+
+Repository and workspace allowlisting:
+
+```yaml
+rules:
+  - action: "tool.call"
+    tool: "github"
+    effect: "allow"
+    conditions:
+      security_mode: ["standard", "permissive"]
+      # Enforced via repo_allowlist in nachos.toml
+```
+
+**Configuration:**
+
+```toml
+[tools.github]
+repo_allowlist = ["myorg/backend", "myorg/frontend"]
+
+[tools.bitbucket]
+workspace_allowlist = ["myworkspace"]
+```
+
+### Web Search & Fetch
+
+Domain restrictions for web_fetch_native:
+
+```toml
+[tools.web_fetch_native]
+domain_allowlist = ["docs.nachos.dev", "github.com", "*.wikipedia.org"]
+```
+
+Safe search enforcement for web_search:
+
+```toml
+[tools.web_search]
+safe_search = "moderate"  # or "strict"
+```
+
+### Composio
+
+App-level restrictions:
+
+```toml
+[tools.composio]
+allowed_apps = ["gmail", "googlecalendar"]  # Limit to specific apps
+```
+
+### Cron & Heartbeat
+
+User isolation — users can only manage their own jobs:
+
+```yaml
+rules:
+  - action: "tool.call"
+    tool: "nachos_cron_add"
+    effect: "allow"
+    conditions:
+      security_mode: ["standard", "permissive"]
+      # Ownership enforced automatically
+
+  - action: "tool.call"
+    tool: "nachos_cron_remove"
+    effect: "allow"
+    conditions:
+      # Can only delete own jobs
+```
+
+System jobs (heartbeat) are protected from user modification.
 
 ## Validating policies
 
