@@ -65,14 +65,19 @@
             "tab": "Tools",
             "groups": [
               { "group": "Overview", "pages": ["tools/index"] },
-              { "group": "Built-in", "pages": ["tools/browser", "tools/filesystem", "tools/code-runner"] }
+              { "group": "Built-in", "pages": ["tools/browser", "tools/filesystem", "tools/code-runner"] },
+              { "group": "Integrations", "pages": ["tools/github", "tools/bitbucket", "tools/composio"] },
+              { "group": "Web", "pages": ["tools/web-search", "tools/web-fetch"] },
+              { "group": "Automation", "pages": ["tools/cron", "tools/heartbeat"] }
             ]
           },
           {
             "tab": "Skills",
             "groups": [
               { "group": "Overview", "pages": ["skills/index"] },
-              { "group": "Built-in", "pages": ["skills/goplaces", "skills/gifgrep", "skills/summarize", "skills/gog"] }
+              { "group": "Built-in", "pages": ["skills/goplaces", "skills/gifgrep", "skills/summarize", "skills/gog"] },
+              { "group": "Browser", "pages": ["skills/agent-browser"] },
+              { "group": "Composio Apps", "pages": ["skills/composio-gmail", "skills/composio-gcal", "skills/composio-gdocs", "skills/composio-gmeet", "skills/composio-gdrive", "skills/composio-linkedin"] }
             ]
           },
           {
