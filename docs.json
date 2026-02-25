@@ -68,7 +68,8 @@
               { "group": "Built-in", "pages": ["tools/browser", "tools/filesystem", "tools/code-runner"] },
               { "group": "Integrations", "pages": ["tools/github", "tools/bitbucket", "tools/composio"] },
               { "group": "Web", "pages": ["tools/web-search", "tools/web-fetch"] },
-              { "group": "Automation", "pages": ["tools/cron", "tools/heartbeat"] }
+              { "group": "Automation", "pages": ["tools/cron", "tools/heartbeat"] },
+              { "group": "Subagents", "pages": ["tools/sessions-spawn", "tools/sessions-orchestrate", "tools/subagents", "tools/subagent-progress"] }
             ]
           },
           {
@@ -96,7 +97,8 @@
           {
             "tab": "Architecture",
             "groups": [
-              { "group": "Overview", "pages": ["architecture/index", "architecture/gateway", "architecture/bus", "architecture/llm-proxy"] }
+              { "group": "Overview", "pages": ["architecture/index", "architecture/gateway", "architecture/bus", "architecture/llm-proxy"] },
+              { "group": "Orchestration", "pages": ["architecture/subagents"] }
             ]
           },
           {
