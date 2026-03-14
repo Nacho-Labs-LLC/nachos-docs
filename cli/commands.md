@@ -544,6 +544,63 @@ nachos sandbox recreate --force
 
 ---
 
+## Plugins
+
+### `nachos plugin add`
+
+Register a plugin from a source.
+
+```bash
+nachos plugin add <source> [options]
+```
+
+| Flag | Description |
+| ---- | ----------- |
+| `--source-type <type>` | Source type |
+| `--name <name>` | Plugin name |
+| `--enable` | Enable plugin after adding |
+| `--dry-run` | Show what would be added without changing config |
+
+```bash
+nachos plugin add github:user/nachos-plugin-weather
+nachos plugin add ./local-plugin --enable
+nachos plugin add github:user/plugin --dry-run
+```
+
+---
+
+### `nachos plugin remove`
+
+Remove a registered plugin.
+
+```bash
+nachos plugin remove <name> [options]
+```
+
+| Flag | Description |
+| ---- | ----------- |
+| `--force` | Skip confirmation prompt |
+| `--keep-config` | Keep plugin config section in nachos.toml |
+| `--dry-run` | Show what would be removed |
+
+```bash
+nachos plugin remove weather
+nachos plugin remove weather --force --keep-config
+```
+
+---
+
+### `nachos plugin list`
+
+List all registered plugins.
+
+```bash
+nachos plugin list
+nachos plugin list --json
+```
+
+---
+
 ## Authentication
 
 ### `nachos auth setup-token`

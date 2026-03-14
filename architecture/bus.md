@@ -1,60 +1,72 @@
 ---
 title: "Message Bus"
-description: "NATS-based message routing."
+description: "NATS-based message routing between all Nachos containers."
 ---
 
 # Message Bus
 
-The bus is a NATS server that provides request/reply messaging between all Nachos containers. It's the communication backbone — no container talks directly to another.
+The bus is a NATS server that provides request/reply messaging between all Nachos containers. It is the communication backbone -- no container talks directly to another.
 
 ## Why NATS
 
 - Lightweight (single binary, minimal memory footprint)
-- Built-in request/reply semantics
-- Pub/sub for broadcast events (e.g., policy reload notifications)
+- Built-in request/reply semantics for tool calls
+- Pub/sub for broadcast events (policy reload, health, status updates)
 - No external dependencies
-
-## How it's used
-
-| Pattern        | Use case                                    |
-|----------------|---------------------------------------------|
-| Request/reply  | Channel → gateway, gateway → tool calls     |
-| Pub/sub        | Policy reload events, health broadcasts     |
+- Token-based authentication
 
 ## Topic structure
 
-Messages are routed via NATS subjects (topics). The topic definitions live in `core/bus/src/topics.ts`.
+All messages are routed via NATS subjects. The topic definitions live in `core/bus/src/topics.ts`.
 
-Common topic patterns:
+### Channel topics
 
-```text
-nachos.channel.{channel_name}.inbound    # Messages from users
-nachos.channel.{channel_name}.outbound   # Messages to users
-nachos.gateway.request                    # Requests to the gateway
-nachos.tool.{tool_name}.call             # Tool call dispatch
-nachos.tool.{tool_name}.result           # Tool call results
-nachos.system.policy.reload              # Policy file change notification
-nachos.system.health                     # Health check broadcasts
+| Topic | Direction | Description |
+|-------|-----------|-------------|
+| `nachos.channel.<id>.inbound` | Platform to Gateway | Normalized user messages |
+| `nachos.channel.<id>.outbound` | Gateway to Platform | Assistant responses |
+
+### Status topics
+
+| Topic | Description |
+|-------|-------------|
+| `nachos.status.<sessionId>.thinking` | LLM is processing |
+| `nachos.status.<sessionId>.tool` | Tool execution in progress |
+| `nachos.status.<sessionId>.done` | Response complete |
+| `nachos.status.<sessionId>.error` | Error occurred |
+
+### Tool topics
+
+| Topic | Description |
+|-------|-------------|
+| `nachos.tool.<name>.request` | Tool call dispatch (request/reply) |
+
+### System topics
+
+| Topic | Description |
+|-------|-------------|
+| `nachos.system.policy.reload` | Policy file change notification |
+| `nachos.system.health` | Health check broadcasts |
+| `nachos.audit.log` | Audit event publishing |
+| `nachos.llm.stream.<sessionId>` | LLM streaming chunks |
+
+## Authentication
+
+The NATS bus requires token authentication:
+
+```yaml
+command: ["-c", "/etc/nats/nats-server.conf", "--auth", "${NATS_TOKEN:?Required}"]
 ```
 
-## Configuration
+The `NATS_TOKEN` environment variable is required -- Docker Compose fails to start without it. All containers that connect to NATS must provide this token.
 
-The bus is configured automatically by `nachos up`. No manual configuration is needed. It runs on `nachos-internal` only — it has no external network access.
+## Network
 
-## Resource usage
-
-NATS is lightweight. Default resource allocation:
-
-```toml
-[runtime.resources]
-memory = "512MB"
-cpus = 0.5
-```
-
-These defaults are shared across containers. The bus itself typically uses far less than its allocation.
+The bus runs on `nachos-internal` only. It has no external network access and is not exposed on host ports by default.
 
 ## Gotchas
 
-- **Bus must start first**: Other containers wait for the bus to be healthy before connecting. If the bus fails to start, everything else will timeout.
-- **No persistence**: NATS runs in-memory. Messages are not persisted. If the bus restarts, in-flight messages are lost (sessions are stored in Redis, not the bus).
+- **Bus must start first**: Other containers wait for the bus to be healthy before connecting. If the bus fails to start, everything else times out.
+- **No persistence**: NATS runs in-memory. Messages are not persisted. If the bus restarts, in-flight messages are lost. Sessions and state are stored separately in Redis/SQLite.
 - **No external access**: The bus is on `nachos-internal` only. It is not reachable from outside Docker.
+- **Token is required**: Set `NATS_TOKEN` to a strong random value (`openssl rand -hex 32`).

@@ -58,16 +58,17 @@
             "tab": "Channels",
             "groups": [
               { "group": "Overview", "pages": ["channels/index"] },
-              { "group": "Messaging", "pages": ["channels/slack", "channels/discord", "channels/telegram"] }
+              { "group": "Messaging", "pages": ["channels/slack", "channels/discord", "channels/telegram", "channels/whatsapp", "channels/matrix"] }
             ]
           },
           {
             "tab": "Tools",
             "groups": [
               { "group": "Overview", "pages": ["tools/index"] },
-              { "group": "Built-in", "pages": ["tools/browser", "tools/filesystem", "tools/code-runner"] },
+              { "group": "Built-in", "pages": ["tools/browser", "tools/filesystem", "tools/code-runner", "tools/shell", "tools/agent-exec"] },
               { "group": "Integrations", "pages": ["tools/github", "tools/bitbucket", "tools/composio"] },
               { "group": "Web", "pages": ["tools/web-search", "tools/web-fetch"] },
+              { "group": "State", "pages": ["tools/memory", "tools/bootstrap"] },
               { "group": "Automation", "pages": ["tools/cron", "tools/heartbeat"] },
               { "group": "Subagents", "pages": ["tools/sessions-spawn", "tools/sessions-orchestrate", "tools/subagents", "tools/subagent-progress"] }
             ]
