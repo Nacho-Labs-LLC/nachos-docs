@@ -1,67 +1,87 @@
 ---
 title: "Code Runner"
-description: "Execute code safely with guardrails."
+description: "Execute Python and JavaScript code in isolated sandboxed containers."
 ---
 
 # Code Runner
 
-The code runner executes code in an isolated sandbox. The assistant can write and run scripts to answer questions, transform data, or generate outputs.
+The code runner executes code in isolated Docker containers with no network access. Each language runs in a separate container with its own resource limits.
+
+## Languages
+
+| Language | Container | Security Tier | NATS Topic |
+|----------|-----------|---------------|------------|
+| Python | `LANGUAGE=python` | RESTRICTED (3) | `nachos.tool.code_runner_python.request` |
+| JavaScript | `LANGUAGE=javascript` | STANDARD (1) | `nachos.tool.code_runner_javascript.request` |
 
 ## Configuration
 
 ```toml
 [tools.code_runner]
 enabled = true
-runtime = "sandboxed"
-languages = ["python", "javascript", "typescript"]
+languages = ["python", "javascript"]
 timeout = 30
-max_memory = "256MB"
 ```
 
-| Key          | Type     | Default                                | Description                    |
-|--------------|----------|----------------------------------------|--------------------------------|
-| `enabled`    | boolean  | `false`                                | Enable the code runner         |
-| `runtime`    | string   | `"sandboxed"`                          | `"sandboxed"` or `"native"`   |
-| `languages`  | string[] | `["python", "javascript", "typescript"]` | Allowed languages            |
-| `timeout`    | integer  | `30`                                   | Execution timeout in seconds   |
-| `max_memory` | string   | `"256MB"`                              | Memory limit per execution     |
+## Parameters
 
-## Runtime modes
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `code` | string | Yes | Code to execute |
+| `timeout` | number | No | Timeout in seconds (1-30, default: 30) |
+| `workdir` | string | No | Working directory, must be within `/tmp` |
 
-| Mode        | Description                                          | Security tier |
-|-------------|------------------------------------------------------|---------------|
-| `sandboxed` | Runs in an isolated container with no network access | 2 (Elevated)  |
-| `native`    | Runs on the host. Requires `security.mode = "permissive"` | 3 (Restricted) |
+## Resource limits
 
-Use `sandboxed` unless you have a specific reason not to. The sandbox has:
+| Limit | Value |
+|-------|-------|
+| Timeout | 30 seconds max |
+| Output buffer | ~10KB before truncation, killed at ~20KB |
+| Memory | 512 MB per container |
+| CPU | 1.0 per container |
+| PIDs | 100 |
+| Network | None (no egress) |
+| Filesystem | Read-only (except `/tmp`) |
 
-- No network access
-- Read-only filesystem (except `/tmp`)
-- Memory and CPU limits
-- PID limits to prevent fork bombs
+## Workspace access
 
-## Supported languages
+Code runner containers mount the workspace directory as read-only at `/workspace`. This allows the assistant to read data files during code execution:
 
-- **Python** — includes standard library and common packages (numpy, pandas, requests)
-- **JavaScript** — Node.js runtime
-- **TypeScript** — compiled and run with tsx
-
-Restrict to only what you need:
-
-```toml
-languages = ["python"]
+```python
+# Read a CSV file from the workspace
+import csv
+with open('/workspace/data/report.csv') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        print(row)
 ```
+
+The `WORKSPACE` environment variable is set to `/workspace` for convenience.
+
+## Python environment
+
+```
+PATH=/usr/local/bin:/usr/bin:/bin
+PYTHONDONTWRITEBYTECODE=1
+PYTHONUNBUFFERED=1
+WORKSPACE=/workspace
+```
+
+Python includes the standard library. Additional packages must be installed within the execution (they do not persist across runs).
 
 ## What the assistant can do
 
 - Write and execute scripts
-- Process data and generate output
-- Install packages within the sandbox (pip, npm)
-- Read files from the workspace (if filesystem tool is also enabled and paths overlap)
+- Process and transform data
+- Read workspace files (read-only)
+- Generate output and visualizations
+- Install packages within the sandbox (pip, npm) -- non-persistent
 
 ## Gotchas
 
-- **Timeout kills the process**: Long-running scripts are terminated at the `timeout` limit. The assistant sees a timeout error.
+- **Timeout kills the process**: Long-running scripts are terminated at the timeout limit. The assistant sees a timeout error.
 - **No persistent state**: Each execution starts fresh. Variables and installed packages do not persist across runs.
-- **Memory limit is hard**: Exceeding `max_memory` kills the process immediately (OOM).
-- **Native mode is dangerous**: It gives the assistant arbitrary code execution on your host. Only use in trusted, single-user environments with `security.mode = "permissive"`.
+- **Memory limit is hard**: Exceeding memory kills the process immediately (OOM).
+- **Python is RESTRICTED**: Python code execution requires security tier 3, which may require user approval depending on your security mode.
+- **No network access**: Code runner containers have no egress. Use `web_fetch` or `web_search` tools separately for internet access.
+- **Output truncation**: Large outputs are truncated to prevent token exhaustion.

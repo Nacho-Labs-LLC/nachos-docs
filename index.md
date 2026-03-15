@@ -63,6 +63,12 @@ Connect Nachos to your messaging platform of choice.
   <Card title="Telegram" icon="telegram" href="/channels/telegram">
     Personal bot via BotFather.
   </Card>
+  <Card title="WhatsApp" icon="whatsapp" href="/channels/whatsapp">
+    Business API with webhook verification.
+  </Card>
+  <Card title="Matrix" icon="hashtag" href="/channels/matrix">
+    Decentralized chat with auto-join.
+  </Card>
 </CardGroup>
 
 ## Add capabilities

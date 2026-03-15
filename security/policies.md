@@ -1,95 +1,176 @@
 ---
 title: "Policies"
-description: "Policy engine and allowlist patterns."
+description: "Cheese policy engine, rule structure, and enforcement."
 ---
 
 # Policies
 
-Policies control what the assistant can do — which tools it can call, which users can interact with it, and what network access containers get. Policies are YAML files in the `policies/` directory, evaluated by the gateway at runtime.
+The Cheese policy engine runs inside the gateway process and evaluates every action against loaded YAML rules. It provides sub-millisecond evaluation with hot-reload support and a deny-by-default posture.
 
 ## How policies work
 
-1. A user sends a message or the LLM requests a tool call
-2. The gateway's policy evaluator checks the action against loaded policies
-3. If the action is allowed, it proceeds. If denied, the user sees an error.
+```mermaid
+flowchart TD
+    A[Security Request] --> B{Cheese Engine Configured?}
+    B -- No --> C[DENY: Fail Closed]
+    B -- Yes --> D[Sort Rules by Priority - Highest First]
+    D --> E{Next Rule}
+    E --> F{Match Criteria?}
+    F -- No --> E
+    F -- Yes --> G{Conditions Satisfied?}
+    G -- No --> E
+    G -- Yes --> H{Rule Effect}
+    H -- allow --> I[ALLOW]
+    H -- deny --> J[DENY with Reason]
+    E -- No More Rules --> K[Apply Default Effect: deny]
+    K --> J
+```
 
-Policies hot-reload on file change — no restart required.
+If no policy rule matches, the default effect is `deny`. If the Cheese engine is not configured (null/undefined), all tool calls are blocked (fail-closed).
 
 ## Policy file structure
 
-```yaml
-# policies/default.yaml
-rules:
-  - action: "tool.call"
-    tool: "browser"
-    effect: "allow"
-    conditions:
-      security_mode: ["standard", "permissive"]
+Policy files are YAML documents in the `policies/` directory:
 
-  - action: "tool.call"
-    tool: "shell"
+```
+policies/
+  strict.yaml      -- Rules active when mode = "strict"
+  standard.yaml    -- Rules active when mode = "standard"
+  permissive.yaml  -- Rules active when mode = "permissive"
+```
+
+The loader filters documents by `metadata.mode`, loading only rules that match the current security mode.
+
+### Example policy document
+
+```yaml
+version: "1.0"
+metadata:
+  name: "Standard Mode Security Policies"
+  description: "Balanced security for typical use cases"
+  mode: "standard"
+
+rules:
+  - id: "standard-llm-allow"
+    description: "Allow LLM calls"
+    priority: 1000
+    match:
+      resource: "llm"
+      action: "call"
+    effect: "allow"
+
+  - id: "standard-tool-filesystem-read"
+    description: "Allow filesystem read in workspace"
+    priority: 750
+    match:
+      resource: "tool"
+      resourceId: "filesystem_read"
+    conditions:
+      - field: "metadata.path"
+        operator: "starts_with"
+        value: "/workspace"
+    effect: "allow"
+
+  - id: "standard-tool-filesystem-read-deny-outside"
+    description: "Deny filesystem read outside workspace"
+    priority: 749
+    match:
+      resource: "tool"
+      resourceId: "filesystem_read"
     effect: "deny"
-    conditions:
-      security_mode: ["strict", "standard"]
-
-  - action: "dm.initiate"
-    effect: "allow"
-    conditions:
-      user_allowlist: ["U123", "U456"]
+    reason: "Filesystem read is restricted to /workspace directory"
 ```
 
-## User allowlists
+## Rule structure
 
-Control who can DM the assistant per channel:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | Yes | Unique rule identifier |
+| `description` | string | No | Human-readable description |
+| `priority` | number | Yes | Evaluation order (higher = first) |
+| `match` | object | Yes | Resource, action, and resourceId criteria |
+| `conditions` | array | No | Additional conditions (AND logic) |
+| `effect` | `"allow"` or `"deny"` | Yes | Outcome when rule matches |
+| `reason` | string | No | Denial reason message |
 
-```toml
-# nachos.toml
-[[channels.slack.servers]]
-id = "T123456"
-channel_ids = ["C111", "C222"]
-user_allowlist = ["U123", "U456"]
+### Match criteria
+
+- `resource`: `tool`, `channel`, `dm`, `filesystem`, `network`, `llm`
+- `action`: `read`, `write`, `execute`, `send`, `receive`, `call`
+- `resourceId`: Specific tool name, channel ID, etc.
+
+### Condition operators
+
+| Operator | Description |
+|----------|-------------|
+| `equals` | Exact match |
+| `not_equals` | Negated match |
+| `in` | Value in array |
+| `not_in` | Value not in array |
+| `contains` | Substring match |
+| `matches` | Regex match (with ReDoS protection) |
+| `starts_with` | Prefix match |
+| `ends_with` | Suffix match |
+
+## Priority ranges
+
+| Priority Range | Category |
+|---------------|----------|
+| 1000 | LLM access |
+| 900-901 | DM access control |
+| 850 | Channel messages |
+| 820-825 | Tool groups and web fetch domain allowlists |
+| 790-800 | Standard-tier tools (browser, GitHub, Bitbucket, web search) |
+| 750-760 | Filesystem read access |
+| 720-749 | Filesystem write/edit/patch access |
+| 690-700 | Code runners (Python, JavaScript) |
+| 670-680 | Copilot, Composio |
+| 655-660 | Shell tool, Agent exec |
+| 599-600 | Network access |
+
+## Security tiers
+
+Every tool is assigned a security tier controlling policy enforcement:
+
+| Tier | Name | Tools | Approval Required |
+|------|------|-------|-------------------|
+| SAFE (0) | Safe | `filesystem_read`, any tool with `read`/`list`/`get` in name | No |
+| STANDARD (1) | Standard | `browser`, `code_runner_*`, `web_search`, `web_fetch` | No |
+| ELEVATED (2) | Elevated | `filesystem_write/edit/patch`, `agent_exec`, `composio` | No |
+| RESTRICTED (3) | Restricted | `copilot` | Yes |
+
+## ReDoS protection
+
+The `matches` operator includes two safeguards:
+
+1. **Pattern length limit**: Patterns exceeding 200 characters are rejected
+2. **Nested quantifier detection**: Patterns like `(a+)+` or `(a*)+` are rejected
+
+## Hot-reload
+
+Policy files are watched for changes using `fs.watch()` with 100ms debouncing. On change:
+
+- New rules are validated
+- If validation passes, the rule set is swapped atomically
+- If validation fails, the previous rules are retained (no partial updates)
+
+No restart is required for policy changes.
+
+## Validating policies
+
+```bash
+nachos policy validate
 ```
 
-Users not on the allowlist are silently ignored in `strict` mode, or prompted for a pairing token in `standard` mode.
+The validator checks:
+- Required fields: `version`, `rules` array
+- Each rule has `id`, `priority`, `match`, `effect`
+- No duplicate rule IDs within a document
+- Valid resource types, action types, and condition operators
 
-## Tool security tiers
+## Tool-specific policies
 
-Tools are assigned security tiers that determine their default policy:
-
-| Tier | Level      | Examples                                  | Default in standard mode |
-|------|------------|-------------------------------------------|--------------------------|
-| 0    | Safe       | web_search, web_fetch_native, goplaces    | Allowed                  |
-| 1    | Standard   | browser, filesystem (ro), github, bitbucket | Allowed                  |
-| 2    | Elevated   | filesystem (rw), code_runner, composio    | Allowed with audit       |
-| 3    | Restricted | shell, cron (modify others' jobs)         | Denied                   |
-| 4    | Dangerous  | —                                         | Denied                   |
-
-Override per-tool defaults in `nachos.toml`:
-
-```toml
-[tools.overrides.github]
-security_tier = 2
-require_approval = true
-rate_limit_per_minute = 10
-```
-
-## New Tool Policies
-
-### GitHub & Bitbucket
-
-Repository and workspace allowlisting:
-
-```yaml
-rules:
-  - action: "tool.call"
-    tool: "github"
-    effect: "allow"
-    conditions:
-      security_mode: ["standard", "permissive"]
-      # Enforced via repo_allowlist in nachos.toml
-```
-
-**Configuration:**
+### GitHub and Bitbucket
 
 ```toml
 [tools.github]
@@ -99,57 +180,20 @@ repo_allowlist = ["myorg/backend", "myorg/frontend"]
 workspace_allowlist = ["myworkspace"]
 ```
 
-### Web Search & Fetch
-
-Domain restrictions for web_fetch_native:
+### Web Fetch domain restrictions
 
 ```toml
-[tools.web_fetch_native]
+[tools.web_fetch]
 domain_allowlist = ["docs.nachos.dev", "github.com", "*.wikipedia.org"]
 ```
 
-Safe search enforcement for web_search:
-
-```toml
-[tools.web_search]
-safe_search = "moderate"  # or "strict"
-```
-
-### Composio
-
-App-level restrictions:
+### Composio app restrictions
 
 ```toml
 [tools.composio]
-allowed_apps = ["gmail", "googlecalendar"]  # Limit to specific apps
+allowed_apps = ["gmail", "googlecalendar"]
 ```
 
-### Cron & Heartbeat
+### Cron ownership
 
-User isolation — users can only manage their own jobs:
-
-```yaml
-rules:
-  - action: "tool.call"
-    tool: "nachos_cron_add"
-    effect: "allow"
-    conditions:
-      security_mode: ["standard", "permissive"]
-      # Ownership enforced automatically
-
-  - action: "tool.call"
-    tool: "nachos_cron_remove"
-    effect: "allow"
-    conditions:
-      # Can only delete own jobs
-```
-
-System jobs (heartbeat) are protected from user modification.
-
-## Validating policies
-
-```bash
-nachos policy validate
-```
-
-This checks YAML syntax, unknown action types, and conflicting rules.
+Cron jobs are user-scoped: users can only manage their own jobs. System jobs (heartbeat) are protected from user modification.
