@@ -195,7 +195,7 @@ If you don't specify `model` or `modelHint`, Nachos analyzes your task and picks
 - Long tasks (>40 words)
 
 **→ Haiku (fast)** for:
-- Short, simple tasks (<8 words)
+- Short, simple tasks (&lt;8 words)
 - No complexity keywords
 
 **→ Sonnet (balanced)** for:

@@ -88,7 +88,7 @@ Tasks are analyzed for complexity indicators:
 - Long tasks (>40 words)
 
 **→ Haiku (fast):**
-- Short tasks (<8 words)
+- Short tasks (&lt;8 words)
 - No complexity keywords
 
 **→ Sonnet (balanced):**

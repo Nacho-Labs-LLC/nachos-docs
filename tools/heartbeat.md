@@ -469,7 +469,7 @@ Reply: HEARTBEAT_OK
 
 ## Morning (7am-9am)
 1. Check weather → suggest attire if rain/snow
-2. Check calendar → warn if meeting <2hr away
+2. Check calendar → warn if meeting &lt;2hr away
 3. Check email (is:unread label:urgent)
 
 ## Work Hours (9am-6pm)
