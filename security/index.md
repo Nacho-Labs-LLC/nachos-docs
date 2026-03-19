@@ -29,7 +29,7 @@ Start with `standard`. Only use `permissive` in trusted, single-user environment
 ```
 Layer 1: Network Isolation (Docker networks, no external access by default)
 Layer 2: Container Hardening (non-root, read-only FS, no-new-privileges, resource limits)
-Layer 3: Policy Engine (Cheese -- YAML rules evaluated <1ms)
+Layer 3: Policy Engine (Cheese -- YAML rules evaluated &lt;1ms)
 Layer 4: Security Tier + Approval (RESTRICTED tools require human approval)
 Layer 5: SSRF Protection (domain allowlists, private IP blocking, DNS validation)
 Layer 6: DLP Scanning (sensitive data detection and blocking)
